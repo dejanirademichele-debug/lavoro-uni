@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rhode — Beauty positioning map</title>
+<style>
+:root{--ink:#342b2a;--muted:#766966;--rose:#b9475c;--paper:#fbf7f2;--grid:#eadfd8}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;background:var(--paper);color:var(--ink);font-family:Arial,sans-serif}
+main{max-width:1080px;margin:auto}
+.kicker{font-size:11px;letter-spacing:.18em;color:#b86f72;font-weight:bold;text-transform:uppercase}
+h1{font:400 clamp(28px,4vw,42px) Georgia,serif;margin:8px 0}
+.sub{font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 16px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+button{border:1px solid #d9c9c1;border-radius:24px;padding:9px 14px;background:#fffdfa;color:var(--ink);font-size:12px;cursor:pointer}
+button.active,button:hover{background:#ead5d1;border-color:#c18a88}
+.panel{background:#fffdfa;border:1px solid var(--grid);border-radius:14px;padding:8px}
+svg{display:block;width:100%;height:auto;min-height:360px}
+.gridline{stroke:var(--grid);stroke-width:1;stroke-dasharray:3 5}
+.axis{stroke:#9f8e86;stroke-width:1.2}
+.axislabel{font:12px Arial;fill:#665853}
+.quad{font: bold 10px Arial;fill:#b9a9a0;letter-spacing:1px}
+.brand{cursor:pointer}
+.brand circle{stroke:#fffdfa;stroke-width:2}
+.brand text{font:11px Arial;fill:#514542;paint-order:stroke;stroke:#fffdfa;stroke-width:3px;stroke-linejoin:round}
+.brand.rhode circle{stroke:#fff;stroke-width:3}
+.brand.rhode text{font:bold 15px Arial;fill:#b9475c;stroke-width:4px}
+.brand:focus{outline:none}
+#tip{min-height:42px;margin:10px 4px 2px;padding:10px 12px;border-radius:9px;background:#f5ece7;color:#514542;font-size:12px;line-height:1.45}
+.note{font-size:11px;line-height:1.5;color:var(--muted);margin:10px 3px}
+@media(max-width:600px){body{padding:10px}.panel{padding:2px}svg{min-height:420px}.brand text{font-size:10px}}
+</style>
+</head>
+<body>
+<main>
+<div class="kicker">Beauty landscape · competitive positioning</div>
+<h1>Where does Rhode sit?</h1>
+<p class="sub">Mappa qualitativa dei principali brand make-up e beauty. Tocca o seleziona un brand per leggere il suo posizionamento.</p>
+<div class="filters" id="filters">
+<button class="active" data-filter="all">Tutti i brand</button>
+<button data-filter="accessible">Mass market</button>
+<button data-filter="indie">Indie & digital</button>
+<button data-filter="prestige">Premium & luxury</button>
+</div>
+<div class="panel">
+<svg id="map" viewBox="0 0 900 590" role="img" aria-label="Mappa di posizionamento dei brand beauty">
+<rect x="65" y="28" width="800" height="500" rx="4" fill="#fffdfa"/>
+<line class="gridline" x1="465" y1="28" x2="465" y2="528"/>
+<line class="gridline" x1="65" y1="278" x2="865" y2="278"/>
+<line class="axis" x1="65" y1="528" x2="865" y2="528"/>
+<line class="axis" x1="65" y1="528" x2="65" y2="28"/>
+<text class="quad" x="82" y="48">MASS · TREND</text>
+<text class="quad" x="846" y="48" text-anchor="end">PRESTIGE · GLAM</text>
+<text class="quad" x="82" y="510">BASIC BEAUTY</text>
+<text class="quad" x="846" y="510" text-anchor="end">SKINIMAL · LUXE</text>
+<text class="axislabel" x="65" y="553">ACCESSIBILE</text>
+<text class="axislabel" x="865" y="553" text-anchor="end">PREMIUM</text>
+<text class="axislabel" x="465" y="580" text-anchor="middle">PREZZO →</text>
+<text class="axislabel" transform="translate(18 278) rotate(-90)" text-anchor="middle">IDENTITÀ ESTETICA · MINIMAL → MAKE-UP STATEMENT</text>
+<g id="points"></g>
+</svg>
+<div id="tip">Seleziona un punto sulla mappa per leggere il posizionamento del brand. <b>Rhode</b> è evidenziato in rosa.</div>
+</div>
+<p class="note">Nota metodologica: posizioni indicative basate sulla percezione di prezzo e identità estetica, non su dati di vendita. I confini tra segmenti sono fluidi.</p>
+</main>
+<script>
+const data=[
+["e.l.f.",1,5,"accessible","#8e7770","Prezzo accessibile, ampia offerta colore e forte dinamica social."],
+["NYX",1.5,7,"accessible","#8e7770","Mass market orientato a trend, colore e sperimentazione."],
+["Maybelline",1.3,6,"accessible","#8e7770","Make-up mainstream, performance e accessibilità."],
+["L'Oréal Paris",2,5.8,"accessible","#8e7770","Ampiezza di gamma e posizionamento mass-premium."],
+["Glossier",3.7,2.4,"indie","#c47f82","Estetica effortless, naturale e community-driven."],
+["Rare Beauty",3.9,5,"indie","#8e7770","Make-up espressivo ma accessibile, con forte purpose e community."],
+["Fenty Beauty",4.8,7,"prestige","#8e7770","Inclusività, performance e ampiezza di shade range."],
+["Milk Makeup",4.3,4.2,"indie","#c47f82","Make-up creativo, pratico e con codici cool."],
+["Saie",4.5,2.2,"indie","#c47f82","Clean beauty, glow e look naturale."],
+["Kosas",4.9,3,"indie","#c47f82","Skin-improving make-up e finish naturale."],
+["Tower 28",3.8,3.5,"indie","#c47f82","Approccio skin-friendly, inclusivo e giocoso."],
+["MERIT",6,2.2,"prestige","#b9a18b","Minimalismo curato, prodotti essenziali e premium."],
+["ILIA",6.2,3.2,"prestige","#b9a18b","Clean, skincare-meets-make-up e performance."],
+["Rhode",5.3,1.35,"indie","#d75c70","BRAND PROTAGONISTA: skincare-first, minimalismo, glow e prezzo premium accessibile."],
+["NARS",6.6,6.3,"prestige","#8e7770","Prestige make-up, artistry e prodotti iconici."],
+["Makeup by Mario",6.4,7.4,"prestige","#8e7770","Approccio professionale, tecnica e risultati da make-up artist."],
+["Huda Beauty",5.5,8.3,"prestige","#8e7770","Full glam, alta pigmentazione e trend."],
+["Charlotte Tilbury",8,6,"prestige","#b9a18b","Glamour, ritualità e lusso accessibile."],
+["Dior Beauty",9,6.2,"prestige","#b9a18b","Luxury heritage, eleganza e make-up fashion."],
+["Chanel Beauty",9.4,4.5,"prestige","#b9a18b","Lusso classico, sofisticazione e status."],
+["MAC",6,8.5,"prestige","#8e7770","Pro heritage, colore e cultura professionale."]
+];
+const ns="http://www.w3.org/2000/svg", group=document.getElementById("points"), tip=document.getElementById("tip");
+function el(tag,attrs,parent){const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n}
+function draw(filter="all"){
+ group.innerHTML="";
+ data.filter(d=>filter==="all"||d[3]===filter).forEach(d=>{
+  const [name,x,y,cat,color,desc]=d, px=65+x*80, py=528-y*50, isRhode=name==="Rhode";
+  const g=el("g",{class:"brand"+(isRhode?" rhode":""),tabindex:"0",role:"button","aria-label":name+" — "+desc},group);
+  el("circle",{cx:px,cy:py,r:isRhode?13:7.5,fill:color},g);
+  const tx=px, ty=py+(isRhode?25:-12);
+  const t=el("text",{x:tx,y:ty,"text-anchor":"middle"},g);t.textContent=isRhode?"RHODE":name;
+  const show=()=>{tip.innerHTML="<b>"+name+"</b> · "+desc};
+  g.addEventListener("click",show);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}});
+  g.addEventListener("mouseenter",show);
+ });
+}
+draw();
+document.querySelectorAll("button[data-filter]").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll("button[data-filter]").forEach(x=>x.classList.remove("active"));
+ b.classList.add("active");draw(b.dataset.filter);
+}));
+</script>
+</body>
+</html>
